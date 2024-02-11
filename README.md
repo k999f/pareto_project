@@ -1,2 +1,2 @@
 # pareto_project
-My bachelor's diploma
+My bachelor's diploma – system for assessing the quality of partner approximations
