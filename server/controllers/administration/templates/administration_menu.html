@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Меню администратора</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let algorythmParameterNumber = 0;
+      let taskParameterNumber = 0;
+
+      function addAlgorythmParameterForm() {
+        algorythmParameterNumber++;
+        parameterId = "algorythm_parameter" + algorythmParameterNumber;
+
+        if (algorythmParameterNumber == 1) {
+          document.getElementById("delete_algorythm_parameter").style.visibility = "visible";
+        }
+
+        let parameterDiv = document.createElement("div");
+        parameterDiv.setAttribute("id", parameterId);
+
+        let parameterName = document.createElement("input");
+        parameterName.setAttribute("type", "text");
+        parameterName.setAttribute("name", "algorythm_parameter");
+        parameterName.setAttribute("style", "width: 260px;");
+        parameterName.setAttribute("id", "algorythm_parameter");
+        parameterName.setAttribute("placeholder", "Параметр");
+        parameterName.required = true;
+
+        let pTagParameterName = document.createElement("p");
+
+        let mainDiv = document.getElementById("algorythm_parameters");
+        pTagParameterName.appendChild(parameterName);
+        parameterDiv.appendChild(pTagParameterName);
+        mainDiv.appendChild(parameterDiv);
+      }
+
+      function deleteAlgorythmParameterForm() {
+        algorythmParameterNumber--;
+
+        if (algorythmParameterNumber == 0) {
+          document.getElementById("delete_algorythm_parameter").style.visibility = "hidden";
+        }
+        
+        let mainDiv = document.getElementById("algorythm_parameters");
+        mainDiv.removeChild(mainDiv.lastElementChild);
+      }
+
+      // Стандартные задачи
+
+      function addTaskParameterForm() {
+        taskParameterNumber++;
+        parameterId = "task_parameter" + taskParameterNumber;
+
+        if (taskParameterNumber == 1) {
+          document.getElementById("delete_task_parameter").style.visibility = "visible";
+        }
+
+        let parameterDiv = document.createElement("div");
+        parameterDiv.setAttribute("id", parameterId);
+
+        let parameterName = document.createElement("input");
+        parameterName.setAttribute("type", "text");
+        parameterName.setAttribute("name", "task_parameter");
+        parameterName.setAttribute("style", "width: 260px;");
+        parameterName.setAttribute("id", "task_parameter");
+        parameterName.setAttribute("placeholder", "Параметр");
+        parameterName.required = true;
+
+        let pTagParameterName = document.createElement("p");
+
+        let mainDiv = document.getElementById("task_parameters");
+        pTagParameterName.appendChild(parameterName);
+        parameterDiv.appendChild(pTagParameterName);
+        mainDiv.appendChild(parameterDiv);
+      }
+
+      function deleteTaskParameterForm() {
+        taskParameterNumber--;
+
+        if (taskParameterNumber == 0) {
+          document.getElementById("delete_task_parameter").style.visibility = "hidden";
+        }
+        
+        let mainDiv = document.getElementById("task_parameters");
+        mainDiv.removeChild(mainDiv.lastElementChild);
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pareto-Q</a>
+        <div class="btn-group dropstart">
+          <button
+            type="button"
+            class="btn btn-secondary dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ user }}
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if role == "admin" %}
+            <li><a class="dropdown-item" href="/admin">Управление</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="/logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <form method="POST">
+      <h1 class="mb-4">Меню администратора</h1>
+      </form>
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a
+            class={% if algorythm_action or task_action or indicator_action %} "nav-link" {% else %} "nav-link active" {% endif %}
+            id="nav-user-tab"
+            data-bs-toggle="tab"
+            href="#nav-user"
+            role="tab"
+            aria-controls="nav-user"
+            aria-selected={% if algorythm_action or task_action or indicator_action %} "false" {% else %} "true" {% endif %}
+            >Пользователи</a
+          >
+          <a
+            class={% if task_action %} "nav-link active" {% else %} "nav-link" {% endif %}
+            id="nav-task-tab"
+            data-bs-toggle="tab"
+            href="#nav-task"
+            role="tab"
+            aria-controls="nav-task"
+            aria-selected={% if task_action %} "true" {% else %} "false" {% endif %}
+            >Стандартные задачи</a
+          >
+          <a
+            class={% if algorythm_action %} "nav-link active" {% else %} "nav-link" {% endif %}
+            id="nav-algorythm-tab"
+            data-bs-toggle="tab"
+            href="#nav-algorythm"
+            role="tab"
+            aria-controls="nav-algorythm"
+            aria-selected={% if algorythm_action %} "true" {% else %} "false" {% endif %}
+            >Алгоритмы</a
+          >
+          <a
+            class={% if indicator_action %} "nav-link active" {% else %} "nav-link" {% endif %}
+            id="nav-indicator-tab"
+            data-bs-toggle="tab"
+            href="#nav-indicator"
+            role="tab"
+            aria-controls="nav-indicator"
+            aria-selected={% if indicator_action %} "true" {% else %} "false" {% endif %}
+            >Индикаторы</a
+          >
+        </div>
+      </nav>
+
+      <div class="tab-content" id="nav-tabContent">
+        <!-- Пользователи -->
+        <div
+          class={% if algorythm_action or task_action or indicator_action %} "tab-pane fade" {% else %} "tab-pane fade show active" {% endif %}
+          id="nav-user"
+          role="tabpanel"
+          aria-labelledby="nav-user-tab"
+        >
+
+          <form method="POST">
+            <div class="row mt-4">
+              <div class="col">
+                <button class="btn btn-primary" name="create_button" value="user" type="submit" style="width: 200px;">
+                  Создать пользователя
+                </button>
+              </div>
+            </div>
+          </form>
+
+          {% if users %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Логин</th>
+                        <th>Роль</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for user in users %}
+                      <tr>
+                        <td>
+                          {{ user['login'] }}
+                        </td>
+                        <td>{{ user['role'] }}</td>
+                        <td>
+                          <button
+                            value="{{ user['id'] }}"
+                            name="edit_user"
+                            type="submit"
+                            class="btn btn btn-secondary"
+                          >
+                            Редактировать
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет пользователей</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Стандартные задачи -->
+        <div
+          class={% if task_action %} "tab-pane fade show active" {% else %} "tab-pane fade" {% endif %}
+          id="nav-task"
+          role="tabpanel"
+          aria-labelledby="nav-task-tab"
+        >
+          <form method="POST">
+            <div class="row mt-4">
+                <div class="col">
+                    <button
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createTaskModal"
+                      class="btn btn-primary"
+                    >
+                      Создать задачу
+                    </button>
+                </div>
+            </div>
+
+            <div
+              class="modal fade"
+              id="createTaskModal"
+              tabindex="-1"
+              aria-labelledby="createTaskModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">
+                      Создать задачу
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <p>
+                      <input
+                        type="text"
+                        name="task_name"
+                        size="30"
+                        placeholder="Название"
+                        style="width: 260px"
+                        required
+                      />
+                    </p>
+                    <div id="task_parameters"></div>
+                    <div class="row">
+                      <div class="col-2">
+                        <button
+                          type="button"
+                          class="btn btn-link"
+                          style="padding: 5px;"
+                          onclick="addTaskParameterForm()"
+                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        </button>
+                      </div>
+            
+                      <div class="col">
+                        <button
+                          type="button"
+                          class="btn btn-link"
+                          id="delete_task_parameter"
+                          style="visibility: hidden; padding: 5px;"
+                          onclick="deleteTaskParameterForm()"
+                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-dash-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                          <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                        </button>
+                      </div>
+                    </div>            
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="submit"
+                      name="create_button"
+                      value="task"
+                      class="btn btn-primary"
+                    >
+                      Создать
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Закрыть
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>  
+          </form>
+          {% if tasks %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Задача</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for task in tasks %}
+                      <tr>
+                        <td>
+                            {{ task['name'] }}
+                        </td>
+                        <td>
+                          <button
+                            value="{{ task['id'] }}"
+                            name="delete_task"
+                            type="submit"
+                            class="btn btn btn-danger"
+                            {% if task['is_used'] %}
+                            disabled
+                            {% endif %}
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет стандартных задач</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        
+        <!-- Алгоритмы -->
+        <div
+          class={% if algorythm_action %} "tab-pane fade show active" {% else %} "tab-pane fade" {% endif %}
+          id="nav-algorythm"
+          role="tabpanel"
+          aria-labelledby="nav-algorythm-tab"
+        >
+
+        <form method="POST">
+          <div class="row mt-4">
+              <div class="col">
+                  <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createAlgorythmModal"
+                    class="btn btn-primary"
+                  >
+                    Создать алгоритм
+                  </button>
+              </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="createAlgorythmModal"
+            tabindex="-1"
+            aria-labelledby="createAlgorythmModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="createAlgorythmModalLabel">
+                    Создать алгоритм
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body text-center">
+                  <p>
+                    <input
+                      type="text"
+                      name="algorythm_name"
+                      size="30"
+                      placeholder="Название"
+                      style="width: 260px"
+                      required
+                    />
+                  </p>
+                  <div id="algorythm_parameters"></div>
+                  <div class="row">
+                    <div class="col-2">
+                      <button
+                        type="button"
+                        class="btn btn-link"
+                        style="padding: 5px;"
+                        onclick="addAlgorythmParameterForm()"
+                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                      </svg>
+                      </button>
+                    </div>
+          
+                    <div class="col">
+                      <button
+                        type="button"
+                        class="btn btn-link"
+                        id="delete_algorythm_parameter"
+                        style="visibility: hidden; padding: 5px;"
+                        onclick="deleteAlgorythmParameterForm()"
+                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-dash-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                      </svg>
+                      </button>
+                    </div>
+                  </div>          
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="submit"
+                    name="create_button"
+                    value="algorythm"
+                    class="btn btn-primary"
+                  >
+                    Создать
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Закрыть
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>  
+        </form>
+
+          {% if algorythms %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Алгоритм</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for algorythm in algorythms %}
+                      <tr>
+                        <td>{{ algorythm['name'] }}</td>
+                        <td>
+                          <button
+                            value="{{ algorythm['id'] }}"
+                            name="delete_algorythm"
+                            type="submit"
+                            class="btn btn btn-danger"
+                            {% if algorythm['is_used'] %}
+                            disabled
+                            {% endif %}
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет алгоритмов</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Индикаторы -->
+        <div
+          class={% if indicator_action %} "tab-pane fade show active" {% else %} "tab-pane fade" {% endif %}
+          id="nav-indicator"
+          role="tabpanel"
+          aria-labelledby="nav-indicator-tab"
+        >
+
+        <form method="POST">
+          <div class="row mt-4">
+              <div class="col">
+                  <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createIndicatorModal"
+                    class="btn btn-primary"
+                  >
+                    Создать индикатор
+                  </button>
+              </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="createIndicatorModal"
+            tabindex="-1"
+            aria-labelledby="createIndicatorModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="createIndicatorModalLabel">
+                    Создать индикатор
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body text-center">
+                  <p>
+                    <input
+                      type="text"
+                      name="indicator_name"
+                      size="30"
+                      placeholder="Название"
+                      style="width: 260px"
+                      required
+                    />
+                  </p>
+                  <p>
+                    <select name="indicator_type" style="width: 260px; height: 30px;">
+                      <option value="unary">Унарный</option>
+                      <option value="binary">Бинарный</option>
+                    </select>
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="submit"
+                    name="create_button"
+                    value="indicator"
+                    class="btn btn-primary"
+                  >
+                    Создать
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Закрыть
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>  
+        </form>
+
+          {% if indicators %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Индикатор</th>
+                        <th>Тип</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for indicator in indicators %}
+                      <tr>
+                        <td>
+                            {{ indicator['name'] }}
+                        </td>
+                        <td>
+                          {% if indicator['type'] == 'unary' %}
+                          Унарный
+                          {% elif indicator['type'] == 'binary' %}
+                          Бинарный
+                          {% endif %}
+                      </td>
+                        <td>
+                          <button
+                            value="{{ indicator['id'] }}"
+                            name="delete_indicator"
+                            type="submit"
+                            class="btn btn btn-danger"
+                            {% if indicator['is_used'] %}
+                            disabled
+                            {% endif %}
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет индикаторов</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

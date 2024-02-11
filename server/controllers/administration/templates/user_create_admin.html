@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Регистрация</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function cancel() {
+        document.getElementById("login").removeAttribute("required");
+        document.getElementById("password").removeAttribute("required");
+        document.getElementById("repeat_password").removeAttribute("required");
+      }
+
+      function selectRole(name) {
+        rolesList = document.getElementById("role");
+        for (let i = 0; i < rolesList.length; i++) 
+        {
+          if (rolesList[i].value == name) 
+          rolesList[i].selected = true;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container d-flex justify-content-center">
+      <form method="POST">
+        <div class="row mt-5">
+          <div class="col">
+            <h1>Создать пользователя</h1>
+          </div>
+        </div>
+
+        {% if already_exists %}
+        <div class="row">
+          <div class="col">
+            <p style="color: red">
+              Пользователь <b>'{{ user_data['login'] }}'</b> уже существует
+            </p>
+          </div>
+        </div>
+        {% endif %} {% if mismatched_passwords %}
+        <div class="row">
+          <div class="col">
+            <p style="color: red">Пароли не совпадают</p>
+          </div>
+        </div>
+
+        {% endif %}
+
+        <hr />
+
+        <div class="row">
+          <div class="col-5">
+            <p>Логин</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <input
+                type="text"
+                name="login"
+                id="login"
+                {%
+                if
+                mismatched_passwords
+                %}
+                value="{{ new_user_login }}"
+                {%
+                endif
+                %}
+                required
+              />
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-5">
+            <p>Пароль</p>
+          </div>
+
+          <div class="col">
+            <p><input type="password" name="password" id="password" required /></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-5">
+            <p style="white-space: nowrap;">Повторите пароль</p>
+          </div>
+
+          <div class="col">
+            <p><input type="password" name="repeat_password" id="repeat_password" required /></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-5">
+            <p>Роль</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <select name="role" id="role" style="width: 185px; height: 30px">
+                {% for role in roles %}
+                <option value="{{ role['name'] }}">
+                  {{ role['name'] }}
+                </option>
+                {% endfor %}
+              </select>
+            </p>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-5">
+            <p>
+              <button
+                type="submit"
+                name="save_button"
+                value="user"
+                class="btn btn-primary"
+                style="width: 130px;"
+              >
+                Создать
+              </button>
+            </p>
+          </div>
+
+          <div class="col">
+            <p>
+              <button
+                type="submit"
+                name="cancel_registration"
+                class="btn btn-secondary"
+                style="width: 130px;"
+                onclick="cancel()"
+              >
+                Отмена
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {% if new_user_role %}
+    <script>
+      selectRole('{{new_user_role}}');
+    </script>
+    {% endif %}
+
+  </body>
+</html>

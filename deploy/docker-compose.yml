@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - TZ=Europe/Moscow
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AUTH_USER=auth
+      - AUTH_PASS=auth
+      - CLIENT_USER=client
+      - CLIENT_PASS=client
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin
+      - DB_NAME=pareto
+    volumes:
+      - ../postgres:/docker-entrypoint-initdb.d/
+    ports:
+      - 5555:5432
+  

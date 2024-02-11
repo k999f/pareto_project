@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Создать анализ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let taskNumber = 0;
+
+      let algorythmsIdList = [{% for a_p in algorythms_parameters %}"{{ a_p['id'] }}", {% endfor %}];
+      let algorythmsParametersList = [{% for a_p in algorythms_parameters %}"{{ a_p['parameter'] }}", {% endfor %}];
+
+      function cancel() {
+        document.getElementById("name").removeAttribute("required");
+        document.querySelectorAll('[id=task]').forEach(element=>element.removeAttribute("required"));
+        let parametersDiv = document.getElementById("parameters")
+        while (parametersDiv.firstChild) {
+          parametersDiv.removeChild(parametersDiv.firstChild);
+        }
+      }
+
+      function load() {
+        document.getElementById("spinner").style.visibility = "visible";
+        document.getElementById("save_button").style.visibility = "hidden";
+      }
+
+      function addTaskForm() {
+        taskNumber++;
+        taskId = "task" + taskNumber;
+
+        if (taskNumber == 1) {
+          document.getElementById("delete_task").style.visibility = "visible";
+        }
+
+        let taskDiv = document.createElement("div");
+        taskDiv.setAttribute("id", taskId);
+
+        let taskFile = document.createElement("input");
+        taskFile.setAttribute("type", "file");
+        taskFile.setAttribute("name", "task");
+        taskFile.setAttribute("style", "width: 290px;");
+        taskFile.setAttribute("id", "task");
+        taskFile.required = true;
+
+        let pTagTaskFile = document.createElement("p");
+
+        let mainDiv = document.getElementById("tasks");
+        pTagTaskFile.appendChild(taskFile);
+        taskDiv.appendChild(pTagTaskFile);
+        mainDiv.appendChild(taskDiv);
+      }
+
+      function deleteTaskForm() {
+        taskNumber--;
+
+        if (taskNumber == 0) {
+          document.getElementById("delete_task").style.visibility = "hidden";
+        }
+        
+        let mainDiv = document.getElementById("tasks");
+        mainDiv.removeChild(mainDiv.lastElementChild);
+      }
+
+      function filesSelected() {
+        var tasks = document.getElementsByName("task");
+        var result = true;
+        for (task of tasks) {  
+          if (task.files.length == 0)  
+            result = false;
+        }
+        return (result);
+      }
+
+      function createParametersForm() {
+        let algorythm_parameters = [];
+        let parametersDiv = document.getElementById("parameters")
+        
+        while (parametersDiv.firstChild) {
+          parametersDiv.removeChild(parametersDiv.firstChild);
+        }
+
+        if (document.getElementById("name").value && filesSelected()) {
+          selected_algorythm_id = document.getElementById("algorythm").value;
+
+          document.getElementById("save_button").style.visibility = 'visible';
+
+          for (let i = 0; i < algorythmsIdList.length; i++) {
+            if (algorythmsIdList[i] == selected_algorythm_id) {
+              algorythm_parameters.push(algorythmsParametersList[i]);
+            }
+          }
+
+          if ((algorythm_parameters.length == 1) && (algorythm_parameters[0] == "No parameters")) {
+            var noParametersText = document.createElement("p");
+            noParametersText.appendChild(document.createTextNode("У алгоритма нет параметров"));
+            parametersDiv.append(noParametersText);
+          }
+
+          if ((algorythm_parameters.length != 1) && (algorythm_parameters[0] != "No parameters")) {
+            var ParametersText = document.createElement("b");
+            ParametersText.appendChild(document.createTextNode("Параметры алгоритма:"));
+            parametersDiv.append(ParametersText);
+            for (let i = 0; i < algorythm_parameters.length; i++) {
+              var parameterForm = document.createElement("input");
+              var parameterFormP = document.createElement("p");
+              parameterForm.setAttribute("type", "text");
+              parameterForm.setAttribute("name", "algorythm_parameter");
+              parameterForm.setAttribute("style", "width: 200px;");
+              parameterForm.setAttribute("id", "algorythm_parameter");
+              parameterForm.setAttribute("placeholder", algorythm_parameters[i]);
+              parameterForm.required = true;
+              // parameterFormP.setAttribute("class", "text-center");
+              parameterFormP.append(parameterForm)
+              parametersDiv.append(parameterFormP)
+            }
+          }
+        }
+        else {
+          var nameRequiredText = document.createElement("p");
+          nameRequiredText.appendChild(document.createTextNode("Заполните все поля"));
+          parametersDiv.append(nameRequiredText);
+          document.getElementById("save_button").style.visibility = 'hidden';
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pareto-Q</a>
+        <div class="btn-group dropstart">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">{{ user }}</button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if role == "admin" %}
+            <li><a class="dropdown-item" href="/admin">Управление</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="/logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container d-flex justify-content-center">
+      <form method="POST" enctype="multipart/form-data" onsubmit="load();">
+        <div class="row">
+          <div class="col">
+            <h1>Создание анализа</h1>
+            <h3 style="color: grey">с <b>пользовательской</b> задачей</h3>
+          </div>
+        </div>
+
+        <!-- {% if analysis_data %}
+        <div class="row">
+          <div class="col">
+            <p style="color: red">Выберите хотя бы одну задачу</p>
+          </div>
+        </div>
+        {% endif %} -->
+
+        <div class="spinner-border text-primary" role="status" id="spinner" style="visibility: hidden;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-3">
+            <p>Название</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                style="width: 200px; height: 30px"
+                {%
+                if
+                analysis_data
+                %}
+                value="{{ analysis_data['name'] }}"
+                {%
+                endif
+                %}
+                required
+              />
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <p>Алгоритм</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <select name="algorythm" id="algorythm" style="width: 200px; height: 30px">
+                {% for algorythm in algorythms %}
+                <option value="{{ algorythm['id'] }}">
+                  {{ algorythm['name'] }}
+                </option>
+                {% endfor %}
+              </select>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <p>Задача</p>
+          </div>
+
+          <div class="col-4" id="tasks">
+            <div id="task1">
+              <p>
+                <input
+                  type="file"
+                  name="task"
+                  id="task"
+                  accept=".txt, .csv"
+                  style="width: 290px;"
+                  required
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-2">
+            <button
+              type="button"
+              class="btn btn-link"
+              onclick="addTaskForm()"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            </button>
+          </div>
+
+          <div class="col">
+            <button
+              type="button"
+              class="btn btn-link"
+              id="delete_task"
+              style="visibility: hidden;"
+              onclick="deleteTaskForm()"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-dash-circle" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+            </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-4">
+            <!-- <p>
+              <button
+                type="submit"
+                name="save_button"
+                id="save_button"
+                value="analysis_user_task"
+                class="btn btn-primary"
+              >
+                Создать
+              </button>
+            </p> -->
+            <p>
+              <button type="button" onclick="createParametersForm()" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#analysisParameters">
+                Создать
+              </button>
+            </p>
+
+            <div class="modal fade" id="analysisParameters" tabindex="-1" aria-labelledby="analysisParametersLabel" aria-hidden="true">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="analysisParametersLabel">Параметры</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="parameters">
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="submit"
+                      name="save_button"
+                      id="save_button"
+                      value="analysis_user_task"
+                      class="btn btn-primary"
+                    >
+                      Создать
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <p>
+              <button
+                type="submit"
+                name="cancel_button"
+                value="analysis"
+                class="btn btn-secondary"
+                onclick="cancel()"
+              >
+                Отмена
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

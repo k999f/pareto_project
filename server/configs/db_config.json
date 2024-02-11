@@ -1,0 +1,23 @@
+{
+  "auth":{
+    "host":"127.0.0.1",
+    "port":"5555",
+    "user":"auth",
+    "password":"auth",
+    "database":"pareto"
+	},
+  "client":{
+    "host":"127.0.0.1",
+    "port":"5555",
+    "user":"client",
+    "password":"client",
+    "database":"pareto"
+  },
+  "admin":{
+    "host":"127.0.0.1",
+    "port":"5555",
+    "user":"admin",
+    "password":"admin",
+    "database":"pareto"
+  }
+}

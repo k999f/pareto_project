@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Просмотр оценки</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .showFrontButton  {  
+        border: none; 
+        padding: 0; 
+        margin: 0;
+        color: #0d6efd; 
+        background-color: transparent; 
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pareto-Q</a>
+        <div class="btn-group dropstart">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">{{ user }}</button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if role == "admin" %}
+            <li><a class="dropdown-item" href="/admin">Управление</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="/logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <form method="POST">
+      <h1 style="word-break: break-all">
+        <button type="submit" class="btn btn-outline-secondary" name="cancel_button" value="estimation" style="padding-top: 3px; padding-left: 10px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+          </svg>
+        </button>
+        Оценка <b>"{{ estimation_data[0]['name'] }}"</b>
+      </h1>
+
+      {% if not estimation_data[0]['output_data'] %}
+      <button class="btn btn-primary" type="button" disabled>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Вычисление...
+      </button>
+
+      <button value="{{ estimation_data[0]['id'] }}" name="show_estimation" id="reload_button" type="submit" class="btn btn-secondary" style="display: none;">
+        Обновить
+      </button>
+
+      <script>
+        setTimeout(function () {
+          document.getElementById("reload_button").click();
+        }, 3000);
+      </script>
+      {% endif %}
+
+      </form>
+
+      <hr>
+
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Поле</th>
+                <th>Значение</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Название оценки</td>
+                <td> {{ estimation_data[0]['name'] }} </td>
+              </tr>
+              <tr>
+                <td>Дата создания</td>
+                <td> {{ estimation_data[0]['created'] }} </td>
+              </tr>
+              <tr>
+                <td>Индикатор</td>
+                <td>
+                  {{ estimation_data[0]['indicator_name'] }}
+                </td>
+              </tr>
+
+              <tr>
+                <td>Фронт №1</td>
+                {% if not estimation_data[0]['output_data'] %}
+                <td></td>
+                {% else %}
+                <td> 
+                  <button type="button" class="btn showFrontButton" data-bs-toggle="modal" data-bs-target="#firstFrontModal">Показать</button>
+                </td>
+                {% endif %}
+              </tr>
+
+              {% if estimation_data[0]['second_front'] %}
+              <tr>
+                <td>Фронт №2</td>
+                {% if not estimation_data[0]['output_data'] %}
+                <td></td>
+                {% else %}
+                <td> 
+                  <button type="button" class="btn showFrontButton" data-bs-toggle="modal" data-bs-target="#secondFrontModal">Показать</button>
+                </td>
+                {% endif %}
+              </tr>
+              {% endif %}
+
+              {% if estimation_data[0]['reference_set'] %}
+              <tr>
+                <td>Эталон</td>
+                {% if not estimation_data[0]['output_data'] %}
+                <td></td>
+                {% else %}
+                <td> 
+                  <button type="button" class="btn showFrontButton" data-bs-toggle="modal" data-bs-target="#referenceSetModal">Показать</button>
+                </td>
+                {% endif %}
+              </tr>
+              {% endif %}
+
+              <!-- <tr>
+                <td colspan="2" style="padding-left: 2px; padding-right: 2px">
+                  <div class="accordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" style="padding-left: 5px;" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                          Фронт №1
+                        </button>
+                      </h2>
+                      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" >
+                        <div class="accordion-body">
+                          <div style="white-space: pre-wrap;">{{ estimation_data[0]['first_front'] }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    {% if estimation_data[0]['second_front'] %}
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" style="padding-left: 5px;" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                          Фронт №2
+                        </button>
+                      </h2>
+                      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" >
+                        <div class="accordion-body">
+                          <div style="white-space: pre-wrap;">{{ estimation_data[0]['second_front'] }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr> -->
+              <tr>
+                <td>Результаты</td>
+                {% if not estimation_data[0]['output_data'] %}
+                <td>
+                </td>
+                {% else %}
+                <td style="white-space: pre-wrap;">{{ estimation_data[0]['output_data'] }}</td>
+                {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal fade" id="firstFrontModal" tabindex="-1" aria-labelledby="firstFrontModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="firstFrontModalLabel">Фронт №1</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap;">{{ estimation_data[0]['first_front'] }}</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if estimation_data[0]['second_front'] %}
+      <div class="modal fade" id="secondFrontModal" tabindex="-1" aria-labelledby="secondFrontModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="secondFrontModalLabel">Фронт №2</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap;">{{ estimation_data[0]['second_front'] }}</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if estimation_data[0]['reference_set'] %}
+      <div class="modal fade" id="referenceSetModal" tabindex="-1" aria-labelledby="referenceSetLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="referenceSetModalLabel">Эталон</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap;">{{ estimation_data[0]['reference_set'] }}</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </body>
+</html>

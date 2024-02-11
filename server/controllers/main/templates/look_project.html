@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Просмотр проекта</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .estimation-type:hover {background: #eee;}
+
+      .nounderline {
+        text-decoration: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pareto-Q</a>
+        <div class="btn-group dropstart">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">{{ user }}</button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if role == "admin" %}
+            <li><a class="dropdown-item" href="/admin">Управление</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="/logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <form method="POST">
+      <h1 class="mb-4">
+        <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ url_for('main_blueprint.main') }}';" style="padding-top: 3px; padding-left: 10px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+          </svg>
+        </button>
+        {{ project_name[0]['name'] }}
+      </h1>
+      </form>
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a
+            class={% if analysis_action or estimation_action %} "nav-link" {% else %} "nav-link active" {% endif %}
+            id="nav-calculation-tab"
+            data-bs-toggle="tab"
+            href="#nav-calculation"
+            role="tab"
+            aria-controls="nav-calculation"
+            aria-selected={% if analysis_action or estimation_action %} "false" {% else %} "true" {% endif %}
+            >Расчет</a
+          >
+          <a
+            class={% if estimation_action %} "nav-link active" {% else %} "nav-link" {% endif %}
+            id="nav-estimation-tab"
+            data-bs-toggle="tab"
+            href="#nav-estimation"
+            role="tab"
+            aria-controls="nav-estimation"
+            aria-selected={% if estimation_action %} "true" {% else %} "false" {% endif %}
+            >Оценка</a
+          >
+          <a
+            class={% if analysis_action %} "nav-link active" {% else %} "nav-link" {% endif %}
+            id="nav-analysis-tab"
+            data-bs-toggle="tab"
+            href="#nav-analysis"
+            role="tab"
+            aria-controls="nav-analysis"
+            aria-selected={% if analysis_action %} "true" {% else %} "false" {% endif %}
+            >Анализ</a
+          >
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+        <div
+          class={% if analysis_action or estimation_action %} "tab-pane fade" {% else %} "tab-pane fade show active" {% endif %}
+          id="nav-calculation"
+          role="tabpanel"
+          aria-labelledby="nav-calculation-tab"
+        >
+
+          <form method="POST">
+            <div class="row mt-4">
+              <div class="col">
+                <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="width: 160px;">
+                  Создать расчет
+                </button>
+                  <div class="dropdown-menu" style="width: 227px;">
+                    <p><button
+                      type="submit"
+                      name="create_button"
+                      value="calculation"
+                      class="btn estimation-type"
+                      style="width: 225px;"
+                      >
+                      Стандартная задача
+                    </button></p>
+
+                    <p><button
+                      type="submit"
+                      name="create_button"
+                      value="calculation_user_task"
+                      class="btn estimation-type"
+                      style="width: 225px;"
+                      >
+                      Пользовательская задача
+                      </button></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {% if calculations %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Название</th>
+                        <th>Дата создания</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for calculation in calculations %}
+                      <tr>
+                        <td>
+                          <button
+                            value="{{ calculation['id'] }}"
+                            name="show_calculation"
+                            type="submit"
+                            class="btn btn-link nounderline"
+                          >
+                            {{ calculation['name'] }}
+                          </button>
+                        </td>
+                        <td>{{ calculation['created'] }}</td>
+                        <td>
+                          <button
+                            value="{{ calculation['id'] }}"
+                            name="delete_calculation"
+                            type="submit"
+                            class="btn btn btn-danger"
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет расчетов</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div
+          class={% if estimation_action %} "tab-pane fade show active" {% else %} "tab-pane fade" {% endif %}
+          id="nav-estimation"
+          role="tabpanel"
+          aria-labelledby="nav-estimation-tab"
+        >
+          <form method="POST">
+            <div class="row mt-4">
+              <div class="col">
+                <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="width: 160px;">
+                  Создать оценку
+                </button>
+                  <div class="dropdown-menu" style="width: 192px;">
+                    <p><button
+                      type="submit"
+                      name="create_button"
+                      value="estimation_unary"
+                      class="btn estimation-type"
+                      style="width: 190px;"
+                      >
+                      Унарный индикатор
+                    </button></p>
+
+                    <p><button
+                      type="submit"
+                      name="create_button"
+                      value="estimation_binary"
+                      class="btn estimation-type"
+                      style="width: 190px;"
+                      >
+                      Бинарный индикатор
+                      </button></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% if estimations %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Название</th>
+                        <th>Дата создания</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for estimation in estimations %}
+                      <tr>
+                        <td>
+                          <button
+                            value="{{ estimation['id'] }}"
+                            name="show_estimation"
+                            type="submit"
+                            class="btn btn-link nounderline"
+                          >
+                            {{ estimation['name'] }}
+                          </button>
+                        </td>
+                        <td>{{ estimation['created'] }}</td>
+                        <td>
+                          <button
+                            value="{{ estimation['id'] }}"
+                            name="delete_estimation"
+                            type="submit"
+                            class="btn btn btn-danger"
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет оценок</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div
+          class={% if analysis_action %} "tab-pane fade show active" {% else %} "tab-pane fade" {% endif %}
+          id="nav-analysis"
+          role="tabpanel"
+          aria-labelledby="nav-analysis-tab"
+        >
+
+        <form method="POST">
+          <div class="row mt-4">
+            <div class="col">
+              <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="width: 160px;">
+                Создать анализ
+              </button>
+                <div class="dropdown-menu" style="width: 227px;">
+                  <p><button
+                    type="submit"
+                    name="create_button"
+                    value="analysis"
+                    class="btn estimation-type"
+                    style="width: 225px;"
+                    >
+                    Стандартная задача
+                  </button></p>
+
+                  <p><button
+                    type="submit"
+                    name="create_button"
+                    value="analysis_user_task"
+                    class="btn estimation-type"
+                    style="width: 225px;"
+                    >
+                    Пользовательская задача
+                    </button></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+          {% if analyses %}
+          <form method="POST">
+            <div class="row">
+              <div class="col">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Название</th>
+                        <th>Дата создания</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for analysis in analyses %}
+                      <tr>
+                        <td>
+                          <button
+                            value="{{ analysis['id'] }}"
+                            name="show_analysis"
+                            type="submit"
+                            class="btn btn-link nounderline"
+                          >
+                            {{ analysis['name'] }}
+                          </button>
+                        </td>
+                        <td>{{ analysis['created'] }}</td>
+                        <td>
+                          <button
+                            value="{{ analysis['id'] }}"
+                            name="delete_analysis"
+                            type="submit"
+                            class="btn btn btn-danger"
+                          >
+                            Удалить
+                          </button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          {% else %}
+          <div class="row mt-2">
+            <div class="col">
+              <b>Нет анализов</b>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

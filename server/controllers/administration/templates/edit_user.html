@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Регистрация</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let password_is_visible = false;
+
+      function cancel() {
+        document.getElementById("login").removeAttribute("required");
+        document.getElementById("password").removeAttribute("required");
+        document.getElementById("repeat_password").removeAttribute("required");
+      }
+
+      function selectRole(name) {
+        rolesList = document.getElementById("role");
+        for (let i = 0; i < rolesList.length; i++) 
+        {
+          if (rolesList[i].value == name) 
+          rolesList[i].selected = true;
+        }
+      }
+
+      function changePasswordVisibility() {
+        password = document.getElementById("password")
+        button = document.getElementById("password_visibility_button")
+        if (password_is_visible == true) {
+          password.type="password";
+          password_is_visible = false;
+          button.innerText = 'Показать'
+        }
+        else if (password_is_visible == false) {
+          password.type="text";
+          password_is_visible = true;
+          button.innerText = 'Скрыть'
+        }
+      }
+    </script>
+    <style>
+      .nounderline {
+        text-decoration: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container d-flex justify-content-center">
+      <form method="POST">
+        <div class="row mt-5">
+          <div class="col">
+            <h1>Редактирование пользователя</h1>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-5">
+            <p>Логин</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <input type="text" name="login" id="login" value="{{login}}" disabled required />
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-5">
+            <p>Пароль</p>
+            <p>
+              <button
+                type="button"
+                class="btn btn-link nounderline"
+                style="padding: 0;"
+                id="password_visibility_button"
+                onclick="changePasswordVisibility()"
+              >
+              Показать
+              </button>
+            </p>
+          </div>
+
+          <div class="col">
+            <p>
+              <input type="password" name="password" id="password" value="{{password}}" required />
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-5">
+            <p>Роль</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <select name="role" id="role" style="width: 185px; height: 30px">
+                {% for role in roles %}
+                <option value="{{ role['name'] }}">{{ role['name'] }}</option>
+                {% endfor %}
+              </select>
+            </p>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-5">
+            <p>
+              <button
+                type="submit"
+                name="save_edited_user"
+                class="btn btn-primary"
+                style="width: 130px"
+              >
+                Сохранить
+              </button>
+            </p>
+          </div>
+
+          <div class="col">
+            <p>
+              <button
+                type="submit"
+                name="cancel_registration"
+                class="btn btn-secondary"
+                style="width: 130px"
+                onclick="cancel()"
+              >
+                Отмена
+              </button>
+            </p>
+          </div>
+        </div>
+
+        <input type="hidden" name="id" id="id" value="{{id}}"/>
+
+      </form>
+    </div>
+
+    {% if role %}
+    <script>
+      selectRole('{{role}}');
+    </script>
+    {% endif %}
+
+  </body>
+</html>

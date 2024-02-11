@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Создать оценку</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function cancel() {
+        document.getElementById("name").removeAttribute("required");
+        document.getElementById("first_front").removeAttribute("required");
+        document.getElementById("second_front").removeAttribute("required");
+      }
+
+      function load() {
+        document.getElementById("spinner").style.visibility = "visible";
+        document.getElementById("save_button").style.visibility = "hidden";
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Pareto-Q</a>
+        <div class="btn-group dropstart">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">{{ user }}</button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if role == "admin" %}
+            <li><a class="dropdown-item" href="/admin">Управление</a></li>
+            {% endif %}
+            <li><a class="dropdown-item" href="/logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container d-flex justify-content-center" onsubmit="load();">
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col">
+            <h1>Создание оценки</h1>
+            <h3 style="color: grey">с <b>бинарным</b> индикатором</h3>
+          </div>
+        </div>
+
+        <div class="spinner-border text-primary" role="status" id="spinner" style="visibility: hidden;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-3">
+            <p>Название</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                style="width: 200px; height: 30px"
+                required
+              />
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <p>Метод</p>
+          </div>
+
+          <div class="col">
+            <p>
+              <select name="indicator" style="width: 200px; height: 30px">
+                {% for indicator in indicators %}
+                <option value="{{ indicator['id'] }}">
+                  {{ indicator['name'] }}
+                </option>
+                {% endfor %}
+              </select>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <p style="white-space: nowrap;">Фронт №1</p>
+          </div>
+
+          <div class="col-4">
+            <p>
+              <input type="file" name="first_front" id="first_front" accept=".txt, .csv" style="width: 290px;" required />
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-3">
+            <p style="white-space: nowrap;">Фронт №2</p>
+          </div>
+
+          <div class="col-4">
+            <p>
+              <input type="file" name="second_front" id="second_front" accept=".txt, .csv" style="width: 290px;" required />
+            </p>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-4">
+            <p>
+              <button
+                type="submit"
+                name="save_button"
+                id="save_button"
+                value="estimation_binary"
+                class="btn btn-primary"
+              >
+                Создать
+              </button>
+            </p>
+          </div>
+
+          <div class="col">
+            <p>
+              <button
+                type="submit"
+                name="cancel_button"
+                value="estimation"
+                class="btn btn-secondary"
+                onclick="cancel()"
+              >
+                Отмена
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
